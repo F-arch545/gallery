@@ -16,5 +16,13 @@ pipeline{
                 sh"npm -v"
             }
         }
+
+
+
+        stage("build npm"){
+            steps{
+                sh "npm run build"
+            }
+        }
     }
 }
