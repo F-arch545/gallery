@@ -48,7 +48,7 @@ pipeline {
                     slackSend(
                         channel: '#all-flozyip1',
                         color: 'good',
-                        message: "Deployment Successful Build #${env.BUILD_NUMBER} deployed: https://my-ip-28ez.onrender.com",
+                        message: "Deployment Successful Build #${env.BUILD_NUMBER} deployed: https://gallery-9cbe.onrender.com/",
                         teamDomain: 'flozy_ip1',
                         tokenCredentialId: 'SLACK-ID',
                         botUser: true
