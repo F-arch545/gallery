@@ -75,7 +75,7 @@ pipeline {
                     slackSend(
                         channel: "${env.SLACK_CHANNEL}",
                         color: 'danger',
-                        message: "❌ Deploy FAILED — Build #${env.BUILD_NUMBER}. Check Jenkins console output.",
+                        message: "❌ Deploy FAILED — Build #${env.BUILD_NUMBER}. Check  Jenkins console output.",
                         teamDomain: "${env.TEAM_DOMAIN}",
                         tokenCredentialId: "${env.SLACK_CRED}",
                         botUser: true
