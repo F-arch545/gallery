@@ -14,13 +14,13 @@ pipeline {
 
         stage('Install Dependencies') {
             steps {
-                sh 'npm install'
+                bat 'npm install'
             }
         }
 
         stage('Run Tests') {
             steps {
-                sh 'npm test'
+                bat 'npm test'
             }
             post {
                 failure {
@@ -41,14 +41,14 @@ pipeline {
         stage('Deploy to Render') {
             steps {
                 echo 'Deploy to render'
-                sh "curl -X POST https://api.render.com/deploy/srv-d1bfj7er433s739ir9jg?key=5ATnSjZh2qk"
+                bat "curl -X POST https://api.render.com/deploy/srv-d1bfj7er433s739ir9jg?key=5ATnSjZh2qk"
             }
             post {
                 success {
                     slackSend(
                         channel: '#all-flozyip1',
                         color: 'good',
-                        message: "Deployment Successful Build #${env.BUILD_NUMBER} deployed: https://gallery-9cbe.onrender.com/",
+                        message: "Deployment Successful Build #${env.BUILD_NUMBER} deployed: https://my-ip-28ez.onrender.com/",
                         teamDomain: 'flozy_ip1',
                         tokenCredentialId: 'SLACK-ID',
                         botUser: true
