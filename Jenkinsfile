@@ -2,11 +2,23 @@ pipeline {
     agent any
 
     tools {
-        nodejs 'flozy' 
+        nodejs 'flozy'
+    }
+
+    environment {
+        RENDER_SERVICE_ID = 'srv-d1bfj7er433s739ir9jg'
+        RENDER_URL = 'https://my-ip-28ez.onrender.com/'
+        SLACK_CHANNEL = '#all-flozyip1'
+        TEAM_DOMAIN = 'flozy_ip1'
+        SLACK_CRED = 'SLACK-ID'
+    }
+
+    options {
+        skipDefaultCheckout(true)
     }
 
     stages {
-        stage('Clone Repository') {
+        stage('Checkout') {
             steps {
                 git branch: 'master', url: 'https://github.com/F-arch545/gallery.git'
             }
@@ -14,7 +26,7 @@ pipeline {
 
         stage('Install Dependencies') {
             steps {
-                bat 'npm install'
+                bat 'npm ci'
             }
         }
 
@@ -25,10 +37,13 @@ pipeline {
             post {
                 failure {
                     echo 'Tests failed.'
-                    emailext(
-                        subject: "Jenkins Build #${env.BUILD_NUMBER} Failed",
-                        body: "Build failed during tests. Please check the Jenkins logs for more details.",
-                        to: 'riunguflozy@gmail.com'
+                    slackSend(
+                        channel: "${env.SLACK_CHANNEL}",
+                        color: 'danger',
+                        message: "❌ Tests failed — Build #${env.BUILD_NUMBER}. Check Jenkins console output.",
+                        teamDomain: "${env.TEAM_DOMAIN}",
+                        tokenCredentialId: "${env.SLACK_CRED}",
+                        botUser: true
                     )
                     error('Tests did not pass.')
                 }
@@ -40,21 +55,33 @@ pipeline {
 
         stage('Deploy to Render') {
             steps {
-                echo 'Deploy to render'
-                bat "curl -X POST https://api.render.com/deploy/srv-d1bfj7er433s739ir9jg?key=5ATnSjZh2qk"
+                withCredentials([string(credentialsId: 'RENDER_DEPLOY_KEY', variable: 'RENDER_KEY')]) {
+                    echo 'Deploying to Render...'
+                    bat "curl -X POST https://api.render.com/deploy/${env.RENDER_SERVICE_ID}?key=%RENDER_KEY%"
+                }
             }
             post {
                 success {
                     slackSend(
-                        channel: '#all-flozyip1',
+                        channel: "${env.SLACK_CHANNEL}",
                         color: 'good',
-                        message: "Deployment Successful Build #${env.BUILD_NUMBER} deployed: https://my-ip-28ez.onrender.com/",
-                        teamDomain: 'flozy_ip1',
-                        tokenCredentialId: 'SLACK-ID',
+                        message: "✅ Deploy success — Build #${env.BUILD_NUMBER} → ${env.RENDER_URL}",
+                        teamDomain: "${env.TEAM_DOMAIN}",
+                        tokenCredentialId: "${env.SLACK_CRED}",
                         botUser: true
                     )
-                    }
-                        }   
+                }
+                failure {
+                    slackSend(
+                        channel: "${env.SLACK_CHANNEL}",
+                        color: 'danger',
+                        message: "❌ Deploy FAILED — Build #${env.BUILD_NUMBER}. Check Jenkins console output.",
+                        teamDomain: "${env.TEAM_DOMAIN}",
+                        tokenCredentialId: "${env.SLACK_CRED}",
+                        botUser: true
+                    )
+                }
+            }
         }
     }
 
