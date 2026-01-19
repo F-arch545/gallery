@@ -1,26 +1,25 @@
-process.env.NODE_ENV = 'test';   
+process.env.NODE_ENV = 'test';
 
-var chai = require('chai');
-var chaiHttp = require('chai-http');
+const chai = require('chai');
+const chaiHttp = require('chai-http');
 
-var server = require('../server');
-var should = chai.should();
-var expect = chai.expect;
+const app = require('../server');
 
 chai.use(chaiHttp);
 
-describe('Photos', function(){
+const should = chai.should();
 
+describe('Photos', function () {
+  it('should list ALL photos on / GET', function (done) {
+    this.timeout(60000);
 
-    it('should list ALL photos on / GET', function(done){
-        this.timeout(60000);
-        chai.request(server)
-        .get('/')
-        .end(function(err,res){
-            res.should.have.status(200);
-            res.should.be.html;
-            res.body.should.be.a('object')
-            done();
-        })
-    });
-})
+    chai.request(app)
+      .get('/')
+      .end(function (err, res) {
+        res.should.have.status(200);
+        res.should.be.html;
+        res.text.should.be.a('string');
+        done();
+      });
+  });
+});
